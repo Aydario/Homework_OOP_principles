@@ -1,5 +1,18 @@
+from itertools import chain
+
 class Student:
+    """
+    Represents a student with attributes such as name, surname, gender, finished courses,
+    courses in progress, and grades.
+    """
     def __init__(self, name, surname, gender):
+        """
+        Initializes a Student instance.
+
+        :param name: The first name of the student.
+        :param surname: The last name of the student.
+        :param gender: The gender of the student.
+        """
         self.name = name
         self.surname = surname
         self.gender = gender
@@ -8,6 +21,11 @@ class Student:
         self.grades = {}
 
     def __str__(self):
+        """
+        Returns a string representation of the student.
+
+        :return: A formatted string with student details.
+        """
         return (
             f'Имя: {self.name}\n'
             f'Фамилия: {self.surname}\n'
@@ -17,44 +35,97 @@ class Student:
         )
 
     def __lt__(self, other):
+        """
+        Compares the average grade of this student with another student.
+
+        :param other: Another Student instance.
+        :return: True if this student's average grade is less than the other's, False otherwise.
+        """
         return self.get_average_grade() < other.get_average_grade()
 
     def __eq__(self, other):
+        """
+        Compares the average grade of this student with another student.
+
+        :param other: Another Student instance.
+        :return: True if this student's average grade is equal to the other's, False otherwise.
+        """
         return self.get_average_grade() == other.get_average_grade()
 
     def __gt__(self, other):
+        """
+        Compares the average grade of this student with another student.
+
+        :param other: Another Student instance.
+        :return: True if this student's average grade is greater than the other's, False otherwise.
+        """
         return self.get_average_grade() > other.get_average_grade()
 
     def rate_lecture(self, lecturer, course, grade):
+        """
+        Rates a lecture given by a lecturer.
+
+        :param lecturer: A Lecturer instance.
+        :param course: The course name.
+        :param grade: The grade given to the lecture.
+        :return: 'Ошибка' if the rating is not possible, None otherwise.
+        """
         if (isinstance(lecturer, Lecturer) and
                 course in lecturer.courses_attached and
                 course in self.courses_in_progress):
-            lecturer.received_grades[course] = lecturer.received_grades.get(course, [
-            ])
+            lecturer.received_grades[course] = lecturer.received_grades.get(course, [])
             lecturer.received_grades[course] += [grade]
         else:
             return 'Ошибка'
 
     def get_average_grade(self):
-        self.list_grades = []
-        for grades in self.grades.values():
-            self.list_grades += grades
+        """
+        Calculates the average grade of the student across all courses.
+
+        :return: The average grade.
+        """
+        self.list_grades = list(chain(*self.grades.values()))
+        if not self.list_grades:
+            return 0
         return sum(self.list_grades) / len(self.list_grades)
 
 
 class Mentor:
+    """
+    Represents a mentor with attributes such as name, surname, and attached courses.
+    """
     def __init__(self, name, surname):
+        """
+        Initializes a Mentor instance.
+
+        :param name: The first name of the mentor.
+        :param surname: The last name of the mentor.
+        """
         self.name = name
         self.surname = surname
         self.courses_attached = []
 
 
 class Lecturer(Mentor):
+    """
+    Represents a lecturer who is a type of mentor with additional attributes for received grades.
+    """
     def __init__(self, name, surname):
+        """
+        Initializes a Lecturer instance.
+
+        :param name: The first name of the lecturer.
+        :param surname: The last name of the lecturer.
+        """
         super().__init__(name, surname)
         self.received_grades = {}
 
     def __str__(self):
+        """
+        Returns a string representation of the lecturer.
+
+        :return: A formatted string with lecturer details.
+        """
         return (
             f'Имя: {self.name}\n'
             f'Фамилия: {self.surname}\n'
@@ -62,29 +133,74 @@ class Lecturer(Mentor):
         )
 
     def __lt__(self, other):
+        """
+        Compares the average lecture grade of this lecturer with another lecturer.
+
+        :param other: Another Lecturer instance.
+        :return: True if this lecturer's average grade is less than the other's, False otherwise.
+        """
         return self.get_average_grade_lectures() < other.get_average_grade_lectures()
 
     def __eq__(self, other):
+        """
+        Compares the average lecture grade of this lecturer with another lecturer.
+
+        :param other: Another Lecturer instance.
+        :return: True if this lecturer's average grade is equal to the other's, False otherwise.
+        """
         return self.get_average_grade_lectures() == other.get_average_grade_lectures()
 
     def __gt__(self, other):
+        """
+        Compares the average lecture grade of this lecturer with another lecturer.
+
+        :param other: Another Lecturer instance.
+        :return: True if this lecturer's average grade is greater than the other's, False otherwise.
+        """
         return self.get_average_grade_lectures() > other.get_average_grade_lectures()
 
     def get_average_grade_lectures(self):
-        self.list_grades = []
-        for grades in self.received_grades.values():
-            self.list_grades += grades
+        """
+        Calculates the average grade received by the lecturer across all courses.
+
+        :return: The average grade.
+        """
+        self.list_grades = list(chain(*self.received_grades.values()))
+        if not self.list_grades:
+            return 0
         return sum(self.list_grades) / len(self.list_grades)
 
 
 class Reviewer(Mentor):
+    """
+    Represents a reviewer who is a type of mentor with the ability to rate students' homework.
+    """
     def __init__(self, name, surname):
+        """
+        Initializes a Reviewer instance.
+
+        :param name: The first name of the reviewer.
+        :param surname: The last name of the reviewer.
+        """
         super().__init__(name, surname)
 
     def __str__(self):
+        """
+        Returns a string representation of the reviewer.
+
+        :return: A formatted string with reviewer details.
+        """
         return f'Имя: {self.name}\nФамилия: {self.surname}'
 
     def rate_hw(self, student, course, grade):
+        """
+        Rates a student's homework for a given course.
+
+        :param student: A Student instance.
+        :param course: The course name.
+        :param grade: The grade given to the homework.
+        :return: 'Ошибка' if the rating is not possible, None otherwise.
+        """
         if (isinstance(student, Student) and
                 course in self.courses_attached and
                 course in student.courses_in_progress):
@@ -92,6 +208,34 @@ class Reviewer(Mentor):
             student.grades[course] += [grade]
         else:
             return 'Ошибка'
+
+
+def get_average_grade_students(list_students, course):
+    """
+    Calculates the average grade of all students for a given course.
+
+    :param list_students: A list of Student instances.
+    :param course: The course name.
+    :return: A formatted string with the average grade or a message if no grades are available.
+    """
+    list_grades = list(chain(*(student.grades.get(course, []) for student in list_students)))
+    if not list_grades:
+        return f'Оценки за курс {course} отсутствуют'
+    return f'Средняя оценка всех студентов за курс {course} равна {sum(list_grades) / len(list_grades):.2f}'
+
+
+def get_average_grade_lecturers(list_lecturers, course):
+    """
+    Calculates the average grade of all lecturers for a given course.
+
+    :param list_lecturers: A list of Lecturer instances.
+    :param course: The course name.
+    :return: A formatted string with the average grade or a message if no grades are available.
+    """
+    list_grades = list(chain(*(lecturer.received_grades.get(course, []) for lecturer in list_lecturers)))
+    if not list_grades:
+        return f'Оценки за курс {course} отсутствуют' 
+    return f'Средняя оценка всех лекторов за курс {course} равна {sum(list_grades) / len(list_grades):.2f}'
 
 
 best_student = Student('Ruoy', 'Eman', 'male')
@@ -148,18 +292,17 @@ for reviewer in reviewers:
 
 
 def get_average_grade_students(list_students, course):
-    average = 0
-    for student in list_students:
-        average += sum(student.grades[course]) / len(student.grades[course])
-    return f'Средняя оценка всех студентов за курс {course} равна {average / len(list_students):.2f}'
-
+    list_grades = list(chain(*(student.grades.get(course, []) for student in list_students)))
+    if not list_grades:
+        return f'Оценки за курс {course} отсутствуют'
+    return f'Средняя оценка всех студентов за курс {course} равна {sum(list_grades) / len(list_grades):.2f}'
+    
 
 def get_average_grade_lecturers(list_lecturers, course):
-    average = 0
-    for lecturer in list_lecturers:
-        average += sum(lecturer.received_grades[course]) / \
-            len(lecturer.received_grades[course])
-    return f'Средняя оценка всех лекторов за курс {course} равна {average / len(list_lecturers):.2f}'
+    list_grades = list(chain(*(lecturer.received_grades.get(course, []) for lecturer in list_lecturers)))
+    if not list_grades:
+        return f'Оценки за курс {course} отсутствуют'
+    return f'Средняя оценка всех лекторов за курс {course} равна {sum(list_grades) / len(list_grades):.2f}'
 
 
 print(get_average_grade_students(students, 'Python'))
